@@ -6,22 +6,25 @@ import { useNavigate } from 'react-router-dom';
 function EmployeeList({ searchQuery }) {
   const [employees, setEmployees] = useState([]);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetchEmployees();
   }, []);
 
   const fetchEmployees = () => {
-    axios.get('http://localhost:5000/api/employees')
+    axios.get(`${API_URL}/employees`)
       .then(res => setEmployees(res.data))
       .catch(err => console.error(err));
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/employees/${id}`);
+      const confirmDelete = window.confirm("Are you sure you want to delete this employee?");
+      if (!confirmDelete) return;
+
+      await axios.delete(`${API_URL}/employees/${id}`);
       setEmployees(prev => prev.filter(emp => emp.id !== id));
-      alert("Are you sure you want to delete this employee?")
     } catch (error) {
       console.error(error);
       alert("Failed to delete employee");
@@ -61,7 +64,7 @@ function EmployeeList({ searchQuery }) {
               <tr key={emp.id} className="border-t">
                 <td className="px-4 py-2">
                   <img
-                    src={`http://localhost:5000/uploads/${emp.image}`}
+                    src={`${API_URL.replace('/api', '')}/uploads/${emp.image}`}
                     alt="emp"
                     className="w-10 h-10 rounded-full object-cover"
                   />
@@ -74,9 +77,15 @@ function EmployeeList({ searchQuery }) {
                 <td className="px-4 py-2">{emp.type}</td>
                 <td className="px-4 py-2">{emp.status}</td>
                 <td className="px-4 py-2 flex gap-3">
-                  <button onClick={() => navigate(`/employee/${emp.id}/view`)}><Eye className="w-5 h-5 mt-3 text-blue-500" /></button>
-                  <button onClick={() => navigate(`/employee/${emp.id}/edit`)}><Pencil className="w-5 h-5 mt-3 text-green-500" /></button>
-                  <button onClick={() => handleDelete(emp.id)}><Trash2 className="w-5 h-5 text-red-500 mt-3" /></button>
+                  <button onClick={() => navigate(`/employee/${emp.id}/view`)}>
+                    <Eye className="w-5 h-5 mt-3 text-blue-500" />
+                  </button>
+                  <button onClick={() => navigate(`/employee/${emp.id}/edit`)}>
+                    <Pencil className="w-5 h-5 mt-3 text-green-500" />
+                  </button>
+                  <button onClick={() => handleDelete(emp.id)}>
+                    <Trash2 className="w-5 h-5 text-red-500 mt-3" />
+                  </button>
                 </td>
               </tr>
             ))

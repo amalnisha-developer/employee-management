@@ -6,6 +6,7 @@ function EmployeeListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">

@@ -5,6 +5,7 @@ import axios from 'axios';
 function EditEmployeePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
   const [formData, setFormData] = useState({
     name: '',
     employeeId: '',
@@ -24,12 +25,12 @@ function EditEmployeePage() {
   const statuses = ['Permanent', 'Contract', 'Internship'];
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/employees/${id}`)
+    axios.get(`${API_URL}/employees/${id}`)
       .then(res => {
         setFormData(res.data);
-        setPreviewUrl(`http://localhost:5000/uploads/${res.data.image}`);
+        setPreviewUrl(`${API_URL.replace('/api', '')}/uploads/${res.data.image}`);
       });
-  }, [id]);
+  }, [id, API_URL]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -52,7 +53,7 @@ function EditEmployeePage() {
       Object.entries(formData).forEach(([key, value]) => data.append(key, value));
       if (employeeImage) data.append('employeeImage', employeeImage);
 
-      await axios.put(`http://localhost:5000/api/employees/${id}`, data, {
+      await axios.put(`${API_URL}/employees/${id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -66,7 +67,7 @@ function EditEmployeePage() {
 
   return (
     <div className="bg-white p-6 rounded-md max-w-4xl mx-auto">
-            <button onClick={() => navigate(-1)} className="text-blue-600 mb-4">← Back</button>
+      <button onClick={() => navigate(-1)} className="text-blue-600 mb-4">← Back</button>
 
       <h1 className="text-2xl font-bold mb-4">Edit Employee</h1>
       <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">

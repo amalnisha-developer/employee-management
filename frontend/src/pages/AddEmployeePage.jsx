@@ -73,7 +73,7 @@ function AddEmployeePage() {
       setEmployeeImage(null);
       setPreviewUrl('');
      
-      navigate('/');
+      navigate('/employee');
     } catch (error) {
       console.error(error);
       alert('Error adding employee');

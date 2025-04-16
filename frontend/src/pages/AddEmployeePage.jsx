@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import employee from '../assets/download.jpg'
+import employee from '../assets/download.jpg';
 
 function AddEmployeePage() {
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL;  
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -33,28 +33,33 @@ function AddEmployeePage() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Image size should be under 2MB");
+        return;
+      }
       setEmployeeImage(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     try {
       const data = new FormData();
-
-    
       Object.entries(formData).forEach(([key, value]) => {
         data.append(key, value);
       });
-
-  
       if (employeeImage) {
         data.append('employeeImage', employeeImage);
       }
 
-    
-      await axios.post(`${API_URL}/api/employees`, data, {
+      await axios.post(`${API_URL}/employees`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -72,8 +77,7 @@ function AddEmployeePage() {
       });
       setEmployeeImage(null);
       setPreviewUrl('');
-     
-      navigate('/');
+      navigate('/employee');
     } catch (error) {
       console.error(error);
       alert('Error adding employee');
@@ -219,12 +223,13 @@ function AddEmployeePage() {
               />
             </div>
             <div>
-              <label className="block mb-1 font-medium">Type</label>
+              <label className="block mb-1 font-medium">Type*</label>
               <select
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
+                required
               >
                 <option value="">Select Type</option>
                 {types.map(type => (
@@ -236,12 +241,13 @@ function AddEmployeePage() {
 
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label className="block mb-1 font-medium">Status</label>
+              <label className="block mb-1 font-medium">Status*</label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
                 className="w-2/4 border rounded px-3 py-2"
+                required
               >
                 <option value="">Select Status</option>
                 {statuses.map(status => (

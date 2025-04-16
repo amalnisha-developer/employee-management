@@ -1,14 +1,37 @@
 const db = require('../db');
 
-exports.addEmployee = (req, res) => {
-  const { name, employeeId, department, designation, project, type, status } = req.body;
-  const image = req.file ? req.file.filename : null;
 
-  const sql = 'INSERT INTO employees (name, employeeId, department, designation, project, type, status, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-  db.query(sql, [name, employeeId, department, designation, project, type, status, image], (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ message: 'Employee added successfully' });
-  });
+exports.addEmployee = async (req, res) => {
+  try {
+    const {
+      name,
+      employeeId,
+      department,
+      designation,
+      project,
+      type,
+      status
+    } = req.body;
+
+    const image = req.file ? req.file.filename : null;
+
+    const sql = `INSERT INTO employees 
+      (name, employeeId, department, designation, project, type, status, image) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    const values = [name, employeeId, department, designation, project, type, status, image];
+
+    db.query(sql, values, (err, result) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Database error', error: err });
+      }
+      res.status(201).json({ message: 'Employee added successfully!' });
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
 };
 
 exports.getEmployees = (req, res) => {
